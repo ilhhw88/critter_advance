@@ -9,34 +9,23 @@ import java.util.List;
 
 @Entity
 @Data
-@Table(name = "employee")
 public class Employee {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long employeeId;
 
-    @Column(name = "employeeName")
+    @Column
     private String employeeName;
 
-    @Column
-    @ElementCollection
-    @Enumerated(EnumType.STRING)
+
+    @ElementCollection @Enumerated(EnumType.STRING)
     private List<EmployeeSkill> skills;
 
-    @Column
-    @ElementCollection
-    @Enumerated(EnumType.STRING)
+
+
+    @ElementCollection @Enumerated(EnumType.STRING)
     private List<DayOfWeek> daysAvailable;
 
-    public Employee(String employeeName, List<EmployeeSkill> skills, List<DayOfWeek> daysAvailable) {
-        this.employeeName = employeeName;
-        this.skills = skills;
-        this.daysAvailable = daysAvailable;
-    }
-
-
-    public Employee() {
-
-    }
+    
 }

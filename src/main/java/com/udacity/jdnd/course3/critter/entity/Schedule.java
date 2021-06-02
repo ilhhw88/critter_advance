@@ -15,13 +15,13 @@ public class Schedule {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToMany(targetEntity = Schedule.class, mappedBy = "employee", fetch = FetchType.LAZY)
+    @ManyToMany(fetch = FetchType.LAZY)
     //@Column(name = "EmployeeIds")
-    private List<Long> employeeIds;
+    private List<Employee> employees;
 
-    @ManyToMany(targetEntity = Schedule.class, mappedBy = "pet", fetch = FetchType.LAZY)
+    @ManyToMany(fetch = FetchType.LAZY)
     //@Column(name = "petIds")
-    private List<Long> petIds;
+    private List<Pet> pets;
 
     @Column
     private LocalDate date;

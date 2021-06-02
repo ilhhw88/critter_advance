@@ -1,15 +1,13 @@
 package com.udacity.jdnd.course3.critter.user;
 
-import com.udacity.jdnd.course3.critter.entity.Employee;
 import com.udacity.jdnd.course3.critter.service.serviceImpl.CustomerServiceImpl;
-import com.udacity.jdnd.course3.critter.service.serviceImpl.EmployeeImpl;
+import com.udacity.jdnd.course3.critter.service.serviceImpl.EmployeeServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -24,7 +22,7 @@ public class UserController {
 
     @Autowired
     CustomerServiceImpl customerService;
-    EmployeeImpl employeeService;
+    EmployeeServiceImpl employeeService;
 
     @PostMapping("/customer")
     public CustomerDTO saveCustomer(@RequestBody CustomerDTO customerDTO){
@@ -34,6 +32,7 @@ public class UserController {
         } catch (Exception e) {
             e.printStackTrace();
         }
+
         return custoDTO;
     }
 
@@ -60,13 +59,15 @@ public class UserController {
     }
 
     @PostMapping("/employee")
-    public EmployeeDTO saveEmployee(@RequestBody EmployeeDTO employeeDTO) {
+    public EmployeeDTO saveEmployee(@RequestBody EmployeeDTO requestEmployeeDTO) {
         EmployeeDTO employeeD = null;
+        //System.out.println(requestEmployeeDTO);
         try {
-            employeeD = employeeService.saveEmployee(employeeDTO);
+            employeeD = employeeService.saveEmployee(requestEmployeeDTO);
         } catch (Exception e) {
             e.printStackTrace();
         }
+        System.out.print("employee controller is working!!!");
         return employeeD;
     }
 
