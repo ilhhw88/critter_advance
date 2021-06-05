@@ -23,5 +23,4 @@ public class Customer {
 
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<Pet> pets;
-
 }

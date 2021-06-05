@@ -67,8 +67,10 @@ public class EmployeeServiceImpl implements EmployeeService {
         employee.setEmployeeName(employeeDTO.getName());
         //List<EmployeeSkill> skillList = new ArrayList<>(employeeDTO.getSkills());
         employee.setSkills(new ArrayList<>(employeeDTO.getSkills()));
-
-        List<DayOfWeek> dayOfWeekList = new ArrayList<>(employeeDTO.getDaysAvailable());
+        List<DayOfWeek> dayOfWeekList = new ArrayList<>();
+        if (employeeDTO.getDaysAvailable() != null) {
+            dayOfWeekList = new ArrayList<>(employeeDTO.getDaysAvailable());
+        }
         employee.setDaysAvailable(dayOfWeekList);
 
         return employee;

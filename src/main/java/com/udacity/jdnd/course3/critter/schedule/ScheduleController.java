@@ -17,6 +17,7 @@ import java.util.List;
 public class ScheduleController {
     @Autowired
     ScheduleRepository scheduleRepository;
+    @Autowired
     ScheduleImpl scheduleService;
 
     @PostMapping

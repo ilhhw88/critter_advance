@@ -16,12 +16,11 @@ public class Pet {
     @Column
     private String name;
 
-    @Column
+    @Enumerated(EnumType.STRING)
     private PetType type;
 
-
     @ManyToOne
-    private Customer owner;
+    private Long ownerId;
 
     @Column
     private LocalDate birthDate;

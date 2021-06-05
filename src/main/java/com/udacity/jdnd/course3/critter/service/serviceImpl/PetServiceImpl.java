@@ -13,18 +13,26 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class PetServiceImpl implements PetService {
 
     @Autowired
     CustomerServiceImpl customerService;
+    @Autowired
     CustomerRepository customerRepository;
+    @Autowired
     PetRepository petRepository;
+    @Autowired
+    PetServiceImpl petService;
+
     @Override
     public PetDTO savePet(PetDTO petDTO) {
         Pet pet = convertDTOToDB(petDTO);
-        petRepository.save(pet);
+
+        Pet petForDB = petRepository.save(pet);
+        petDTO.setId(petForDB.getId());
         return petDTO;
     }
 
@@ -46,19 +54,18 @@ public class PetServiceImpl implements PetService {
 
     @Override
     public List<PetDTO> getPetsByOwner(Long ownerId) {
-        Optional<Customer> customer = customerRepository.findById(ownerId);
-        List<Pet> pets;
-        if (customer.isPresent()) {
-            Customer customerForPet = customer.get();
-            pets = customerForPet.getPets();
-        } else {
-            pets = new ArrayList<>();
+        Optional<Customer> customerOptional = customerRepository.findById(ownerId);
+        List<PetDTO> petsDTO = new ArrayList<>();
+        if (customerOptional.isPresent()) {
+            Customer customer = customerOptional.get();
+            List<Pet> pets = customer.getPets();
+            for (Pet pet: pets) {
+                petsDTO.add(convertDBToDTO(pet));
+            }
+            return petsDTO;
         }
-        List<PetDTO> petDTOList = new ArrayList<>();
-        for (Pet pet : pets) {
-            petDTOList.add(convertDBToDTO(pet));
-        }
-        return petDTOList;
+        return petsDTO;
+        //return petsDTO.stream().map(this::convertDBToDTO).collect(Collectors.toList());
     }
 
     //DTO -> DB
@@ -68,15 +75,14 @@ public class PetServiceImpl implements PetService {
         pet.setName(petDTO.getName());
         pet.setBirthDate(petDTO.getBirthDate());
         pet.setNotes(petDTO.getNotes());
-        Optional<Customer> customerOptional = customerService.getCustomerByCustomerId(petDTO.getOwnerId());
-        pet.setOwner(customerOptional.orElse(new Customer()));
+        pet.setOwnerId(petDTO.getOwnerId());
         return pet;
     }
     //DB -> DTO
     private PetDTO convertDBToDTO(Pet pet) {
         PetDTO petDTO = new PetDTO();
         petDTO.setId(pet.getId());
-        petDTO.setOwnerId(pet.getOwner().getCustomerId());
+        petDTO.setOwnerId(pet.getOwnerId());
         petDTO.setName(pet.getName());
         petDTO.setType(pet.getType());
         petDTO.setNotes(pet.getNotes());

@@ -5,9 +5,11 @@ import com.udacity.jdnd.course3.critter.entity.Employee;
 import com.udacity.jdnd.course3.critter.entity.Pet;
 import com.udacity.jdnd.course3.critter.entity.Schedule;
 import com.udacity.jdnd.course3.critter.pet.PetDTO;
+import com.udacity.jdnd.course3.critter.repository.PetRepository;
 import com.udacity.jdnd.course3.critter.repository.ScheduleRepository;
 import com.udacity.jdnd.course3.critter.schedule.ScheduleDTO;
 import com.udacity.jdnd.course3.critter.service.ScheduleService;
+import com.udacity.jdnd.course3.critter.user.CustomerDTO;
 import com.udacity.jdnd.course3.critter.user.EmployeeDTO;
 import com.udacity.jdnd.course3.critter.user.EmployeeSkill;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,9 +23,11 @@ public class ScheduleImpl implements ScheduleService {
 
     @Autowired
     ScheduleRepository scheduleRepository;
+    @Autowired
     PetServiceImpl petService;
-    CustomerServiceImpl customerServiceImpl;
+    @Autowired
     EmployeeServiceImpl employeeService;
+    @Autowired
     CustomerServiceImpl customerService;
 
     @Override
@@ -52,7 +56,7 @@ public class ScheduleImpl implements ScheduleService {
         for (Schedule schedule : petSchedules) {
             List<Pet> pets = schedule.getPets();
             for (Pet pet : pets) {
-                if (pet.getId() == petId) {
+                if (pet.getId().equals(petId)) {
                     petScheduleDTO.add(convertDBToDTO(schedule));
                 }
             }
@@ -67,7 +71,7 @@ public class ScheduleImpl implements ScheduleService {
         for (Schedule schedule : schedules) {
             List<Employee> employees = schedule.getEmployees();
             for (Employee employee : employees) {
-                if (employee.getEmployeeId() == employeeId) {
+                if (employee.getEmployeeId().equals(employeeId)) {
                     employeeSchedulesDTO.add(convertDBToDTO(schedule));
                 }
             }
@@ -78,13 +82,19 @@ public class ScheduleImpl implements ScheduleService {
     @Override
     public List<ScheduleDTO> getScheduleForCustomer(Long customerId) {
         Set<ScheduleDTO> customerSchedules = new HashSet<>();
-        Optional<Customer> customerOptional = customerServiceImpl.getCustomerByCustomerId(customerId);
+//        Optional<Customer> customerOptional = customerServiceImpl.getCustomerByCustomerId(customerId);
+//        if (customerOptional.isPresent()) {
+//            Customer customer = customerOptional.get();
+        //List<Pet> pets = petRepository.findAllByOwner(customerId);
+        Optional<Customer> customerOptional = customerService.getCustomerByCustomerId(customerId);
         if (customerOptional.isPresent()) {
             Customer customer = customerOptional.get();
-            for (Pet pet : customer.getPets()) {
+            List<Pet> pets = customer.getPets();
+            for (Pet pet : pets) {
                 List<ScheduleDTO> scheduleDTOList = getScheduleForPet(pet.getId());
                 customerSchedules.addAll(scheduleDTOList);
             }
+            return new ArrayList<>(customerSchedules);
         }
         return new ArrayList<>(customerSchedules);
     }
@@ -156,8 +166,7 @@ public class ScheduleImpl implements ScheduleService {
         pet.setName(petDTO.getName());
         pet.setBirthDate(petDTO.getBirthDate());
         pet.setNotes(petDTO.getNotes());
-        Optional<Customer> customerOptional = customerService.getCustomerByCustomerId(petDTO.getOwnerId());
-        pet.setOwner(customerOptional.orElse(new Customer()));
+        pet.setOwnerId(customerService.getOwnerByPet(petDTO.getId()).getId());
         return pet;
     }
 }

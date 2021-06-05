@@ -22,6 +22,7 @@ public class UserController {
 
     @Autowired
     CustomerServiceImpl customerService;
+    @Autowired
     EmployeeServiceImpl employeeService;
 
     @PostMapping("/customer")

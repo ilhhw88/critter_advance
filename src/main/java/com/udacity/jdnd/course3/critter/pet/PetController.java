@@ -18,12 +18,13 @@ public class PetController {
 
     @Autowired
     PetRepository petRepository;
+    @Autowired
     PetServiceImpl petService;
     @PostMapping
     public PetDTO savePet(@RequestBody PetDTO petDTO) {
         PetDTO petD = null;
         try {
-            petDTO = petService.savePet(petDTO);
+            petD = petService.savePet(petDTO);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -54,12 +55,12 @@ public class PetController {
 
     @GetMapping("/owner/{ownerId}")
     public List<PetDTO> getPetsByOwner(@PathVariable long ownerId) {
-        List<PetDTO> owenerPetsDTO = new ArrayList<>();
+        List<PetDTO> ownerPetsDTO = new ArrayList<>();
         try {
-            owenerPetsDTO = petService.getPetsByOwner(ownerId);
+            ownerPetsDTO = petService.getPetsByOwner(ownerId);
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return  owenerPetsDTO;
+        return  ownerPetsDTO;
     }
 }
