@@ -52,12 +52,14 @@ public class ScheduleImpl implements ScheduleService {
     @Override
     public List<ScheduleDTO> getScheduleForPet(Long petId) {
         List<ScheduleDTO> petScheduleDTO = new ArrayList<>();
-        List<Schedule> petSchedules = scheduleRepository.findAll();
-        for (Schedule schedule : petSchedules) {
+        List<Schedule> scheduleList = scheduleRepository.findAll();
+        for (Schedule schedule : scheduleList) {
             List<Pet> pets = schedule.getPets();
-            for (Pet pet : pets) {
-                if (pet.getId().equals(petId)) {
-                    petScheduleDTO.add(convertDBToDTO(schedule));
+            if (pets != null) {
+                for (Pet pet : pets) {
+                    if (pet.getId().equals(petId)) {
+                        petScheduleDTO.add(convertDBToDTO(schedule));
+                    }
                 }
             }
         }
@@ -82,20 +84,22 @@ public class ScheduleImpl implements ScheduleService {
     @Override
     public List<ScheduleDTO> getScheduleForCustomer(Long customerId) {
         Set<ScheduleDTO> customerSchedules = new HashSet<>();
-//        Optional<Customer> customerOptional = customerServiceImpl.getCustomerByCustomerId(customerId);
-//        if (customerOptional.isPresent()) {
-//            Customer customer = customerOptional.get();
-        //List<Pet> pets = petRepository.findAllByOwner(customerId);
+
         Optional<Customer> customerOptional = customerService.getCustomerByCustomerId(customerId);
         if (customerOptional.isPresent()) {
             Customer customer = customerOptional.get();
+
             List<Pet> pets = customer.getPets();
-            for (Pet pet : pets) {
-                List<ScheduleDTO> scheduleDTOList = getScheduleForPet(pet.getId());
-                customerSchedules.addAll(scheduleDTOList);
+
+            if (pets != null) {
+                for (Pet pet : pets) {
+                    List<ScheduleDTO> scheduleDTOList = getScheduleForPet(pet.getId());
+
+                    customerSchedules.addAll(scheduleDTOList);
+                }
             }
-            return new ArrayList<>(customerSchedules);
         }
+
         return new ArrayList<>(customerSchedules);
     }
 
@@ -144,7 +148,7 @@ public class ScheduleImpl implements ScheduleService {
             pets.add(convertPetDTOToDB(petService.getPet(petId)));
         }
         schedule.setPets(pets);
-        schedule.setId(scheduleDTO.getId());
+
 
         return schedule;
     }
@@ -166,7 +170,9 @@ public class ScheduleImpl implements ScheduleService {
         pet.setName(petDTO.getName());
         pet.setBirthDate(petDTO.getBirthDate());
         pet.setNotes(petDTO.getNotes());
-        pet.setOwnerId(customerService.getOwnerByPet(petDTO.getId()).getId());
+        Optional<Customer> customerOptional = customerService.getCustomerByCustomerId(petDTO.getOwnerId());
+        Customer customer = customerOptional.get();
+        pet.setOwner(customer);
         return pet;
     }
 }

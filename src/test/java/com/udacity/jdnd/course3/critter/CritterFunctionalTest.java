@@ -97,16 +97,19 @@ public class CritterFunctionalTest {
         petDTO.setOwnerId(newCustomer.getId());
 
         PetDTO newPet = petController.savePet(petDTO);
+        //DB: 1 TestPET
+
 
         petDTO.setType(PetType.DOG);
         petDTO.setName("DogName");
 
         PetDTO newPet2 = petController.savePet(petDTO);
-        //System.out.println(newPet2.getName());
+        //DB: 1 TestPET
+        //DB: 2 DogName
+
         List<PetDTO> pets = petController.getPetsByOwner(newCustomer.getId());
-        for (PetDTO petDTO1 : pets) {
-            System.out.println(petDTO1.getName());
-        }
+
+
 
         Assertions.assertEquals(pets.size(), 2);
         Assertions.assertEquals(pets.get(0).getOwnerId(), newCustomer.getId());
@@ -305,6 +308,7 @@ public class CritterFunctionalTest {
 
     private static void compareSchedules(ScheduleDTO sched1, ScheduleDTO sched2) {
         Assertions.assertEquals(sched1.getPetIds(), sched2.getPetIds());
+        //System.out.println("sche1 activiety: " + sched1.getActivities() + "sche2 acitivity: "  + sched2.getActivities());
         Assertions.assertEquals(sched1.getActivities(), sched2.getActivities());
         Assertions.assertEquals(sched1.getEmployeeIds(), sched2.getEmployeeIds());
         Assertions.assertEquals(sched1.getDate(), sched2.getDate());

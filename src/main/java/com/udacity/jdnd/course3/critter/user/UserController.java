@@ -1,5 +1,7 @@
 package com.udacity.jdnd.course3.critter.user;
 
+import com.udacity.jdnd.course3.critter.entity.Employee;
+import com.udacity.jdnd.course3.critter.repository.EmployeeRepository;
 import com.udacity.jdnd.course3.critter.service.serviceImpl.CustomerServiceImpl;
 import com.udacity.jdnd.course3.critter.service.serviceImpl.EmployeeServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -7,7 +9,9 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -24,6 +28,8 @@ public class UserController {
     CustomerServiceImpl customerService;
     @Autowired
     EmployeeServiceImpl employeeService;
+    @Autowired
+    EmployeeRepository employeeRepository;
 
     @PostMapping("/customer")
     public CustomerDTO saveCustomer(@RequestBody CustomerDTO customerDTO){
@@ -62,13 +68,12 @@ public class UserController {
     @PostMapping("/employee")
     public EmployeeDTO saveEmployee(@RequestBody EmployeeDTO requestEmployeeDTO) {
         EmployeeDTO employeeD = null;
-        //System.out.println(requestEmployeeDTO);
+
         try {
             employeeD = employeeService.saveEmployee(requestEmployeeDTO);
         } catch (Exception e) {
             e.printStackTrace();
         }
-        System.out.print("employee controller is working!!!");
         return employeeD;
     }
 
@@ -86,10 +91,11 @@ public class UserController {
     @PutMapping("/employee/{employeeId}")
     public void setAvailability(@RequestBody Set<DayOfWeek> daysAvailable, @PathVariable long employeeId) {
         EmployeeDTO employeeDTO = employeeService.getEmployee(employeeId);
-        if (employeeDTO != null) {
-            employeeDTO.setDaysAvailable(daysAvailable);
+        Optional<Employee> employeeOptional = employeeRepository.findById(employeeId);
+        if (employeeOptional.isPresent()) {
+            Employee employee = employeeOptional.get();
+            employee.setDaysAvailable(new ArrayList<>(daysAvailable));
         }
-
     }
 
     @GetMapping("/employee/availability")

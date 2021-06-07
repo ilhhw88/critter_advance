@@ -22,12 +22,13 @@ public class PetController {
     PetServiceImpl petService;
     @PostMapping
     public PetDTO savePet(@RequestBody PetDTO petDTO) {
-        PetDTO petD = null;
+        PetDTO petD = new PetDTO();
         try {
             petD = petService.savePet(petDTO);
         } catch (Exception e) {
             e.printStackTrace();
         }
+
         return petD;
     }
 

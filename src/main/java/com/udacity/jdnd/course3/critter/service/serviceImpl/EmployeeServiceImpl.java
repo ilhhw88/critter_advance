@@ -19,9 +19,9 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     @Override
     public EmployeeDTO saveEmployee(EmployeeDTO employeeDTO) {
-        System.out.println("convert is not working!!!!");
+
         Employee employee = convertDTOToDB(employeeDTO);
-        System.out.print("convert is working");
+
         Employee employeeForDB = employeeRepository.save(employee);
         employeeDTO.setId(employeeForDB.getEmployeeId());
 
@@ -33,11 +33,13 @@ public class EmployeeServiceImpl implements EmployeeService {
         Optional<Employee> employeeOptional = employeeRepository.findById(employeeId);
         return employeeOptional.map(this::convertDBToDTO).orElseGet(EmployeeDTO::new);
     }
+
     public List<EmployeeDTO> findEmployeeForService(DayOfWeek date, Set<EmployeeSkill> skills) {
         List<EmployeeDTO> employeeServiceList = new ArrayList<>();
         List<Employee> employeeList = employeeRepository.findAll();
         for (Employee employee : employeeList) {
-            if (employee.getDaysAvailable().contains(date) && employee.getSkills().contains(skills)) {
+
+            if (employee.getDaysAvailable().contains(date) && employee.getSkills().containsAll(skills)) {
                 employeeServiceList.add(convertDBToDTO(employee));
             }
         }

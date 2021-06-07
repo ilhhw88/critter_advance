@@ -10,6 +10,7 @@ import com.udacity.jdnd.course3.critter.user.CustomerDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.swing.text.html.Option;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -24,10 +25,14 @@ public class CustomerServiceImpl implements CustomerService {
     PetRepository petRepository;
     @Autowired
     PetServiceImpl petService;
+    @Autowired
+    CustomerServiceImpl customerService;
     @Override
-    public CustomerDTO saveCustomer(CustomerDTO customerDTO) {
-        Customer customer = convertDTOToEntity(customerDTO);
+    public CustomerDTO saveCustomer(CustomerDTO requestCustomerDTO) {
+
+        Customer customer = convertDTOToEntity(requestCustomerDTO);
         Customer customerForDB = customerRepository.save(customer);
+        CustomerDTO customerDTO = convertEntityToDTO(customerForDB);
         customerDTO.setId(customerForDB.getCustomerId());
         return customerDTO;
     }
@@ -49,20 +54,14 @@ public class CustomerServiceImpl implements CustomerService {
 
     @Override
     public CustomerDTO getOwnerByPet(Long petId) {
-//        List<Customer> customers = customerRepository.findAll();
-//        for (Customer customer : customers) {
-//            for (Long id : customer.getPets()) {
-//                if (id.equals(petId)) {
-//                    return convertEntityToDTO(customer);
-//                }
-//            }
-//        }
         CustomerDTO customerDTO = new CustomerDTO();
         Optional<Pet> pets = petRepository.findById(petId);
         if (pets.isPresent()) {
             Pet pet = pets.get();
-            Optional<Customer> customer = customerRepository.findById(pet.getId());
-            customerDTO = customer.map(this::convertEntityToDTO).orElseGet(CustomerDTO::new);
+            Customer customer = pet.getOwner();
+            //customerDTO = customer.map(this::convertEntityToDTO).orElseGet(CustomerDTO::new);
+            customerDTO = convertEntityToDTO(customer);
+            return customerDTO;
         }
         return customerDTO;
     }
@@ -75,41 +74,43 @@ public class CustomerServiceImpl implements CustomerService {
         customerDTO.setPhoneNumber(customer.getPhoneNumber());
         customerDTO.setNotes(customer.getNotes());
 
-        //customerDTO.setPetIds(customer.getPets().stream().map(Pet::getId).collect(Collectors.toList()));
+        List<Pet> petList = petRepository.findAll();
 
-        List<Pet> PetList = customer.getPets();
         List<Long> petIds = new ArrayList<>();
-        for (Pet pet : PetList) {
-            petIds.add(pet.getId());
+        if (petList != null) {
+            for (Pet pet : petList) {
+                if (pet.getId() == customer.getCustomerId()) {
+                    petIds.add(pet.getId());
+                }
+            }
+            customerDTO.setPetIds(petIds);
+            return customerDTO;
         }
-        customerDTO.setPetIds(petIds);
         return customerDTO;
     }
 
     //DTO -> DB
     private Customer convertDTOToEntity(CustomerDTO customerDTO) {
+
         Customer customer = new Customer();
-        customer.setCustomerId(customerDTO.getId());
+
         customer.setCustomerName(customerDTO.getName());
         customer.setNotes(customerDTO.getNotes());
         customer.setPhoneNumber(customerDTO.getPhoneNumber());
-        List<Pet> pets = new ArrayList<>();
-        List<Long> petIds = customerDTO.getPetIds();
-        if (petIds != null) {
-            for (Long id : petIds) {
-                pets.add(convertPetDTOToDB(petService.getPet(id)));
-            }
-            customer.setPets(pets);
-        }
         return  customer;
     }
     private Pet convertPetDTOToDB(PetDTO petDTO) {
         Pet pet = new Pet();
-        pet.setId(petDTO.getId());
+
         pet.setName(petDTO.getName());
         pet.setBirthDate(petDTO.getBirthDate());
         pet.setNotes(petDTO.getNotes());
-        pet.setOwnerId(petDTO.getOwnerId());
-        return pet;
+        Optional<Customer> customerOptional = customerService.getCustomerByCustomerId(petDTO.getOwnerId());
+        if (customerOptional.isPresent()) {
+            Customer customer = customerOptional.get();
+            pet.setOwner(customer);
+            return pet;
+        }
+        return null;
     }
 }
