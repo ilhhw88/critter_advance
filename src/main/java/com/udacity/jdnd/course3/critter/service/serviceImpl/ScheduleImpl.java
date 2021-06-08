@@ -15,9 +15,11 @@ import com.udacity.jdnd.course3.critter.user.EmployeeSkill;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.time.DayOfWeek;
 import java.util.*;
 
+@Transactional
 @Service
 public class ScheduleImpl implements ScheduleService {
 
@@ -83,24 +85,20 @@ public class ScheduleImpl implements ScheduleService {
 
     @Override
     public List<ScheduleDTO> getScheduleForCustomer(Long customerId) {
-        Set<ScheduleDTO> customerSchedules = new HashSet<>();
-
+        List<ScheduleDTO> customerSchedules = new ArrayList<>();
         Optional<Customer> customerOptional = customerService.getCustomerByCustomerId(customerId);
         if (customerOptional.isPresent()) {
             Customer customer = customerOptional.get();
-
             List<Pet> pets = customer.getPets();
-
             if (pets != null) {
                 for (Pet pet : pets) {
                     List<ScheduleDTO> scheduleDTOList = getScheduleForPet(pet.getId());
-
                     customerSchedules.addAll(scheduleDTOList);
                 }
             }
         }
 
-        return new ArrayList<>(customerSchedules);
+        return customerSchedules;
     }
 
     //DB -> DTO
